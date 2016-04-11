@@ -20,3 +20,5 @@ k=0.164
 hc=200.0e-6
 # Number of elements
 M=11
+#Name of result file
+Resfile="result.dat"
