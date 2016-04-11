@@ -61,7 +61,7 @@ int main(int argc, char** argv)
   const auto& Te=param.Te; // External temperature (Centigrades)
   const auto& k=param.k;  // Thermal conductivity
   const auto& hc=param.hc; // Convection coefficient
-  const auto&    M=param.M; // Number of grid elements
+  const auto&    M=param.M; // Number of grid elements on master
   
   //! Precomputed coefficient for adimensional form of equation
   const auto act=2.*(a1+a2)*hc*L*L/(k*a1*a2);
