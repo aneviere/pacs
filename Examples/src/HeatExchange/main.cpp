@@ -62,8 +62,10 @@ int main(int argc, char** argv)
   const auto& Te=param.Te; // External temperature (Centigrades)
   const auto& k=param.k;  // Thermal conductivity
   const auto& hc=param.hc; // Convection coefficient
-  const auto&    M=param.M; // Number of grid elements
+  const auto& M=param.M; // Number of grid elements
   const auto& file=param.Resfile; //Name of the result file
+  const auto& norm=param.Norm; //Type of norm 1 for Rn, 2 for L², 3 for H1
+
   
   //! Precomputed coefficient for adimensional form of equation
   const auto act=2.*(a1+a2)*hc*L*L/(k*a1*a2);
@@ -85,21 +87,38 @@ int main(int argc, char** argv)
   // Stopping criteria epsilon<=toler
   
   int iter=0;
-  double xnew, epsilon;
+  double xnew, epsilon, xold, thetaold, deriv;
      do
        { epsilon=0.;
+         if (norm==3){
+         	deriv=0.; //used for h1 norm
+         	xold=0.; //used for h1 norm
+	 	thetaold=0.; //used for h1 norm
+	 }
 
 	 // first M-1 row of linear system
          for(int m=1;m < M;m++)
          {   
 	   xnew  = (theta[m-1]+theta[m+1])/(2.+h*h*act);
 	   epsilon += (xnew-theta[m])*(xnew-theta[m]);
-	   theta[m] = xnew;
+	   
+         if (m>1 && norm==3) {
+		  deriv+=(xnew-theta[m]-(xold-thetaold))*(xnew-theta[m]-(xold-thetaold))/h;//used for h1 norm
+		  thetaold = theta[m];//used for h1 norm
+		  xold=xnew; //used for h1 norm
+		}
+           theta[m] = xnew;
          }
 
 	 //Last row
 	 xnew = theta[M-1]; 
-	 epsilon += (xnew-theta[M])*(xnew-theta[M]);
+	 epsilon += (xnew-theta[M])*(xnew-theta[M]); //epsilon in Rn
+         if (norm==2) epsilon = h*epsilon; //epsilon in L²;
+         if (norm==3){ 
+		deriv+=(xnew-theta[M]-(xold-thetaold))*(xnew-theta[M]-(xold-thetaold))/h; //used for h1 norm
+         	epsilon = h*epsilon+deriv; //epsilon in H1
+		}
+	 
 	 theta[M]=  xnew; 
 
 	 iter=iter+1;     
@@ -129,8 +148,8 @@ int main(int argc, char** argv)
      std::vector<double> exact(M+1);
 
 
-     //cout<<"Result file: result.dat"<<endl;
-     //ofstream f("result.dat");
+     //cout<<"Result file: resultfile.dat"<<endl;
+     //ofstream f("resultfile.dat");
      cout << "Result file "<< file<< endl;
      ofstream f(file);
 

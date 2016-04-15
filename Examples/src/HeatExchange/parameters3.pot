@@ -1,3 +1,4 @@
+#Script for H1 Norm
 # Max number of grid elements
 MMAX=101
 # max number of iteration for Gauss-Siedel
@@ -21,6 +22,6 @@ hc=200.0e-6
 # Number of elements
 M=11
 #Name of result file
-Resfile="result.dat"
+Resfile="result3.dat"
 #Norm Type
-Norm=1
+Norm=3

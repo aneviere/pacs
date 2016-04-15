@@ -26,6 +26,8 @@ struct parameters
   int M;
   //! Result file
   std::string Resfile;
+  //! Norm Type
+  int Norm; //1 for Rn, 2 for L², 3 for H1
   //! Constructor takes default values
   parameters():
     itermax(1000000),
@@ -38,9 +40,13 @@ struct parameters
     k(0.164),
     hc(1.e-6*200.),
     M(100),
-    Resfile("resultfile.dat")
+    Resfile("resultfile.dat"),
+    Norm(1)
   {}
+ 
 };
+
+
 //! Prints parameters
 std::ostream & operator << (std::ostream &,const parameters &);
 #endif
