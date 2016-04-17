@@ -33,6 +33,7 @@ parameters readParameters(std::string const & filename,bool verbose)
   values.M=ifile("M",defaults.M);
   values.Resfile=ifile("Resfile",defaults.Resfile.c_str());
   values.Norm=ifile("Norm",defaults.Norm);
+  values.algo=ifile("algo",defaults.algo); 
   if(verbose)
     {
       std::cout<<"PARAMETER VALUES IN GETPOT FILE"<<"\n";

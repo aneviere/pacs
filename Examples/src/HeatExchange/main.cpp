@@ -65,6 +65,7 @@ int main(int argc, char** argv)
   const auto& M=param.M; // Number of grid elements
   const auto& file=param.Resfile; //Name of the result file
   const auto& norm=param.Norm; //Type of norm 1 for Rn, 2 for L², 3 for H1
+  const auto& algo=param.algo; // GaussSeidel or Thomas algorithm
 
   
   //! Precomputed coefficient for adimensional form of equation
@@ -85,7 +86,9 @@ int main(int argc, char** argv)
   // Gauss-Seidel
   // epsilon=||x^{k+1}-x^{k}||
   // Stopping criteria epsilon<=toler
-  
+  if (algo==1){
+     cout<<"Gauss Seidel algorithm"<<endl;
+ 
   int iter=0;
   double xnew, epsilon, xold, thetaold, deriv;
      do
@@ -132,6 +135,91 @@ int main(int argc, char** argv)
 	  "||dx||="<<sqrt(epsilon)<<endl;
 	status=1;
       }
+   }
+ 
+   if (algo==2) {
+   cout<<"Thomas algorithm"<<endl;
+ 
+  //Creation of a, b, c, d vectors
+  std::vector<double> a(M);
+  std::vector<double> b(M+1);
+  std::vector<double> c(M);
+  std::vector<double> d(M+1);
+  
+  
+  // Initialization
+  
+  for(unsigned int m=0;m <= M;++m) {
+
+     a[m]=-1;
+     c[m]=-1;
+     b[m]=2+h*h*2.*act;
+     d[m]=0;
+    }
+  b[M+1]=1;
+  d[0]=To;
+  
+  // Gauss-Seidel
+  // epsilon=||x^{k+1}-x^{k}||
+  // Stopping criteria epsilon<=toler
+  
+  int iter=0;
+  double xnew, epsilon, xold, thetaold, deriv;
+     do
+       { epsilon=0.;
+         if (norm==3){
+         	deriv=0.; //used for h1 norm
+         	xold=0.; //used for h1 norm
+	 	thetaold=0.; //used for h1 norm
+	 }
+
+	 //Modification of c,d
+         c[0]=c[0]/b[0];
+         d[0]=d[0]/b[0];
+         for (int m=1; m<=M;m++)
+	 {
+		c[m]=c[m]/(b[m]-a[m]*c[m-1]);
+		d[m]=(d[m]-a[m]*d[m-1])/(b[m]-a[m]*c[m-1]);
+	 }
+
+
+	 //Last row
+	 xnew = d[M]; 
+	 epsilon += (xnew-theta[M])*(xnew-theta[M]); //epsilon in Rn	
+	 xold=xnew;
+         thetaold = theta[M];
+	 theta[M]=  xnew; 
+         
+         // first M-1 row of linear system
+         for(unsigned int m=(M-1);m >=0;m--)
+         {   
+	   xnew  = d[m]-c[m]*theta[m+1];
+	   epsilon += (xnew-theta[m])*(xnew-theta[m]);
+	   
+         if (norm==3) {
+		  deriv+=(xold-thetaold-(xold-theta[m]))*(xnew-theta[m]-(xold-thetaold))/h;//used for h1 norm
+		  thetaold = theta[m];//used for h1 norm
+		  xold=xnew; //used for h1 norm
+		}
+           theta[m] = xnew;
+         }
+
+	 if (norm==2) epsilon = h*epsilon; //epsilon in L²;
+	 if(norm==3) epsilon = h*epsilon+deriv; //epsilon in H1
+
+
+	 iter=iter+1;     
+       }while((sqrt(epsilon) > toler) && (iter < itermax) );
+
+    if(iter<itermax)
+      cout << "M="<<M<<"  Convergence in "<<iter<<" iterations"<<endl;
+    else
+      {
+	cerr << "NOT CONVERGING in "<<itermax<<" iterations "<<
+	  "||dx||="<<sqrt(epsilon)<<endl;
+	status=1;
+      }
+   }
 
  // Analitic solution
 

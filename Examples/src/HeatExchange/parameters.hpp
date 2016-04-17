@@ -28,6 +28,8 @@ struct parameters
   std::string Resfile;
   //! Norm Type
   int Norm; //1 for Rn, 2 for L², 3 for H1
+  //! Algo choose
+  int algo;
   //! Constructor takes default values
   parameters():
     itermax(1000000),
@@ -41,7 +43,8 @@ struct parameters
     hc(1.e-6*200.),
     M(100),
     Resfile("resultfile.dat"),
-    Norm(1)
+    Norm(1),
+    algo(1)
   {}
  
 };
