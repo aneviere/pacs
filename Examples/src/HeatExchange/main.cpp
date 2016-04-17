@@ -139,6 +139,7 @@ int main(int argc, char** argv)
 
 
   // Thomas Algorithm
+  // It doesn't give the right value at the end....
 
  
    if (algo==2) {
