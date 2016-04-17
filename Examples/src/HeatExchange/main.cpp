@@ -80,7 +80,7 @@ int main(int argc, char** argv)
   // Gauss Siedel is initialised with a linear variation
   // of T
   
-  for(unsigned int m=0;m <= M;++m)
+  for( int m=0;m <= M;++m)
      theta[m]=(1.-m*h)*(To-Te)/Te;
   
   // Gauss-Seidel
@@ -136,6 +136,10 @@ int main(int argc, char** argv)
 	status=1;
       }
    }
+
+
+  // Thomas Algorithm
+
  
    if (algo==2) {
    cout<<"Thomas algorithm"<<endl;
@@ -149,20 +153,17 @@ int main(int argc, char** argv)
   
   // Initialization
   
-  for(unsigned int m=0;m <= M;++m) {
+  for(int m=0;m < M;++m) {
 
      a[m]=-1;
      c[m]=-1;
      b[m]=2+h*h*2.*act;
      d[m]=0;
     }
-  b[M+1]=1;
+  b[M]=1;
   d[0]=To;
-  
-  // Gauss-Seidel
-  // epsilon=||x^{k+1}-x^{k}||
-  // Stopping criteria epsilon<=toler
-  
+  d[M]=0;
+    
   int iter=0;
   double xnew, epsilon, xold, thetaold, deriv;
      do
@@ -176,22 +177,23 @@ int main(int argc, char** argv)
 	 //Modification of c,d
          c[0]=c[0]/b[0];
          d[0]=d[0]/b[0];
-         for (int m=1; m<=M;m++)
+         for (int m=1; m<M;m++)
 	 {
 		c[m]=c[m]/(b[m]-a[m]*c[m-1]);
 		d[m]=(d[m]-a[m]*d[m-1])/(b[m]-a[m]*c[m-1]);
 	 }
+         d[M]=(d[M]-a[M-1]*d[M-1])/(b[M]-a[M-1]*c[M-1]);
 
-
+	 // New theta
 	 //Last row
 	 xnew = d[M]; 
 	 epsilon += (xnew-theta[M])*(xnew-theta[M]); //epsilon in Rn	
-	 xold=xnew;
+	 xold=xnew; 
          thetaold = theta[M];
 	 theta[M]=  xnew; 
          
-         // first M-1 row of linear system
-         for(unsigned int m=(M-1);m >=0;m--)
+         // the M-1 orthers rows
+         for(int m=(M-1);m >=0;m--)
          {   
 	   xnew  = d[m]-c[m]*theta[m+1];
 	   epsilon += (xnew-theta[m])*(xnew-theta[m]);
